@@ -1,0 +1,375 @@
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <!--      开始分12栅栏-->
+    <!--            col-xs-【手机】	.col-sm-【平板】	.col-md-【小尺寸电脑≥992px】	.col-lg-【大尺寸电脑≥1200px】  -->
+    <!--            如果不想做成响应式，但支持响应式【手机上字体不会小】，所有占格都写成手机--col-xs-n  -->
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-xs-6">
+                <h1 class="m-0">字典类型详细信息</h1>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row" style="margin-bottom: 10px">
+            <div class="col-12">
+                <button id="btnAdd" type="button" class="btn  btn-primary">添加</button>
+                <button id="btnDel" type="button" class="btn  btn-primary">删除</button>
+                <button id="btnEdit" type="button" class="btn  btn-primary">修改</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <!-- /.card-header -->
+                    <div class="card-body table-responsive p-0">
+                        <table id="infoTable" class="table table-hover table-bordered text-nowrap">
+                            <thead>
+                            <tr>
+                                <th><input type="checkbox"></th>
+                                <th>ID</th>
+                                <th>类型名称</th>
+                                <th>描述</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>183</td>
+                                <td>John Doe</td>
+                                <td>AAAA</td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>183</td>
+                                <td>John Doe</td>
+                                <td>AAAA</td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>183</td>
+                                <td>John Doe</td>
+                                <td>AAAA</td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>183</td>
+                                <td>John Doe</td>
+                                <td>AAAA</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+
+<!--字典编辑模态框【参考bootstrap】-->
+<!--data-use为自定义属性，data-xxx 其中xxx可以自己定义任意单词-->
+<!--data-use该属性为用途，如果data-use='add'表示添加框，data-use='edit'表示修改框-->
+<!--data-xx自定义HTML属性，属于HTML5的新技能-->
+<div class="modal fade" id="dictionaryTypeModal" data-use="edit" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">字典类型添加</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <input id="id" type="hidden" class="form-control" >
+                            <label class="col-sm-2 col-form-label">类型名称</label>
+                            <div class="col-sm-10">
+                                <input id="name" type="text" class="form-control" placeholder="请输入字典类型名称">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">类型描述</label>
+                            <div class="col-sm-10">
+                                <input id="description" type="text" class="form-control" placeholder="请输入字典类型的描述">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+                </form>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button id="btnSave" type="button" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<script>
+
+    function getAll() {
+
+        //ajax异步请求，XMLHttpRequest异步请求对象【简称：XHR】
+        //url：请求的后端地址
+        //type：请求模式，默认get
+        //dataType：预期后端返回的数据交互格式类型，一般都是JSON
+        //beforeSend：请求准备，提供XHR参数使用
+        //success：请求准备，提供data【后端返回的数据字符串】, textStatus, jqXHR参数使用
+        //error：请求准备，提供XHR, textStatus, errorThrown（错误代码，前端的一些错误信息）参数使用
+        //complete：请求结束，提供XHR、textStatus响应状态码参数使用
+        $.ajax({
+            url: "http://localhost:8080/dictionaryType/getAll.action",
+            type: "get",
+            dataType: "json",
+            beforeSend: function (XHR) {
+                console.log("准备开始请求了...............")
+            },
+            success: function (data, textStatus, jqXHR) {
+                //选择表格里面的tbody对象，然后清空
+                $("#infoTable tbody").empty();
+                //把后端返回的JSON格式数据变成jquery对象【也就是jquery的集合对象】，则使用jquery提供的each()方法遍历
+                $(data.data).each(function (i, item) {
+                    //遍历的时候在给tbody对象添加每一tr
+                    //这里主要使用了jquery的append()方法【该方法提供了字符串累加模式轻松添加HTML结构】
+                    $("#infoTable tbody").append('                            <tr>\n' +
+                        '                                <td><input type="checkbox" value="' + item.id + '" ></td>\n' +
+                        '                                <td>' + item.id + '</td>\n' +
+                        '                                <td>' + item.name + '</td>\n' +
+                        '                                <td>' + item.description + '</td>\n' +
+                        '                            </tr>');
+                });
+                console.log("请求成功了...............");
+            },
+            error: function (XHR, textStatus, errorThrown) {
+                console.log("请求失败了...............");
+            },
+            complete: function (XHR, textStatus) {
+                console.log("请求完毕了...............");
+            }
+        });
+    }
+
+
+    $(function () {
+
+        //todo 模态框弹出之前的初始化
+        $("#dictionaryTypeModal").on("show.bs.modal", function () {
+            if($("#dictionaryTypeModal").data("use")==="add"){
+                $("#name").val("");
+                $("#description").val("");
+            }
+        });
+
+
+        //TODO 添加按钮点击【弹出模态框】
+        $("#btnAdd").click(function () {
+            //修改模式为add框
+            $("#dictionaryTypeModal").data("use","add");
+            //修改标题
+            $("#dictionaryTypeModal h4").text("字典类型添加");
+            //弹出添加模态框
+            $("#dictionaryTypeModal").modal('show');
+        });
+
+        //todo 保存按钮实现
+        $("#btnSave").click(function () {
+            if($("#dictionaryTypeModal").data("use")==="add"){
+                $.ajax({
+                    url: "http://localhost:8080/dictionaryType/add.action",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        name: $("#name").val(),
+                        description: $("#description").val()
+                    },
+                    beforeSend: function (XHR) {
+                        console.log("准备开始请求了...............")
+                    },
+                    success: function (data, textStatus, jqXHR) {
+                        if (data.result) {
+                            $("#dictionaryTypeModal").modal('hide');
+                            getAll();
+                        }
+                        console.log("请求成功了...............");
+                    },
+                    error: function (XHR, textStatus, errorThrown) {
+                        console.log("请求失败了...............");
+                    },
+                    complete: function (XHR, textStatus) {
+                        console.log("请求完毕了...............");
+                    }
+                });
+                return;
+            }
+            if($("#dictionaryTypeModal").data("use")==="edit"){
+                $.ajax({
+                    url: "http://localhost:8080/dictionaryType/edit.action",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        id:$("#id").val(),
+                        name: $("#name").val(),
+                        description: $("#description").val()
+                    },
+                    beforeSend: function (XHR) {
+                        console.log("准备开始请求了...............")
+                    },
+                    success: function (data, textStatus, jqXHR) {
+                        if (data.result) {
+                            $("#dictionaryTypeModal").modal('hide');
+                            getAll();
+                        }
+                        console.log("请求成功了...............");
+                    },
+                    error: function (XHR, textStatus, errorThrown) {
+                        console.log("请求失败了...............");
+                    },
+                    complete: function (XHR, textStatus) {
+                        console.log("请求完毕了...............");
+                    }
+                });
+                return;
+            }
+        });
+
+        //todo 删除按钮
+        $("#btnDel").click(function () {
+
+            //判断是否选中一行【利用选择器选中DOM对象】
+            if ($("#infoTable tbody input:checked").length <= 0) {
+                window.alert("你没有选中任何一行");
+                return;
+            }
+
+            //选中第一个checkBox里面的value
+            console.log($("#infoTable tbody input:checked:first").val());
+
+            //ajax
+            //ajax异步请求，XMLHttpRequest异步请求对象【简称：XHR】
+            //url：请求的后端地址
+            //type：请求模式，默认get
+            //dataType：预期后端返回的数据交互格式类型，一般都是JSON
+            //beforeSend：请求准备，提供XHR参数使用
+            //success：请求准备，提供data【后端返回的数据字符串】, textStatus, jqXHR参数使用
+            //error：请求准备，提供XHR, textStatus, errorThrown（错误代码，前端的一些错误信息）参数使用
+            //complete：请求结束，提供XHR、textStatus响应状态码参数使用
+            //data：请求参数，前端请求到后端的参数
+            $.ajax({
+                url: "http://localhost:8080/dictionaryType/del.action",
+                type: "get",
+                dataType: "json",
+                data: {
+                    id: $("#infoTable tbody input:checked:first").val()
+                },
+                beforeSend: function (XHR) {
+                    console.log("准备开始请求了...............")
+                },
+                success: function (data, textStatus, jqXHR) {
+                    if (data.result) {
+                        getAll();
+                    } else {
+                        alert("删除失败")
+                    }
+                    console.log("请求成功了...............");
+                },
+                error: function (XHR, textStatus, errorThrown) {
+                    console.log("请求失败了...............");
+                },
+                complete: function (XHR, textStatus) {
+                    console.log("请求完毕了...............");
+                }
+            });
+
+
+        });
+
+
+        //todo 修改按钮
+        $("#btnEdit").click(function () {
+            //判断是否选中一行【利用选择器选中DOM对象】
+            if ($("#infoTable tbody input:checked").length <= 0) {
+                window.alert("你没有选中任何一行");
+                return;
+            }
+
+            //ajax获取当前选中的对象属性
+            //ajax异步请求，XMLHttpRequest异步请求对象【简称：XHR】
+            //url：请求的后端地址
+            //type：请求模式，默认get
+            //dataType：预期后端返回的数据交互格式类型，一般都是JSON
+            //beforeSend：请求准备，提供XHR参数使用
+            //success：请求准备，提供data【后端返回的数据字符串】, textStatus, jqXHR参数使用
+            //error：请求准备，提供XHR, textStatus, errorThrown（错误代码，前端的一些错误信息）参数使用
+            //complete：请求结束，提供XHR、textStatus响应状态码参数使用
+            //data：请求参数，前端请求到后端的参数
+            $.ajax({
+                url: "http://localhost:8080/dictionaryType/get.action",
+                type: "get",
+                dataType: "json",
+                data: {
+                    id:$("#infoTable tbody input:checked:first").val()
+                },
+                beforeSend: function (XHR) {
+                    console.log("准备开始请求了...............")
+                },
+                success: function (data, textStatus, jqXHR) {
+                    //==表示判断内容是否相等
+                    //===表示判断内容和类型是否相等
+                    //例如1=="1" 返回true
+                    //例如1==="1" 返回false
+                    if (data.result) {
+
+
+                        //修改模式为edit框
+                        $("#dictionaryTypeModal").data("use","edit");
+                        //修改标题
+                        $("#dictionaryTypeModal h4").text("字典类型修改");
+                        //添加模态框里面的数据
+                        $("#id").val(data.data.id);
+                        $("#name").val(data.data.name);
+                        $("#description").val(data.data.description);
+                        //弹出添加模态框
+                        $("#dictionaryTypeModal").modal('show');
+
+
+
+
+                    }
+                    else {
+                      alert(data.errorMsg)
+                    }
+                    console.log("请求成功了...............");
+                },
+                error: function (XHR, textStatus, errorThrown) {
+                    console.log("请求失败了...............");
+                    console.log("请求失败了..............."+textStatus);
+                    console.log("请求失败了errorThrown..............."+errorThrown);
+                },
+                complete: function (XHR, textStatus) {
+                    console.log("请求完毕了...............");
+                }
+            });
+
+
+        });
+
+
+        //TODO 界面显示初始化
+        getAll();
+    });
+
+
+</script>
